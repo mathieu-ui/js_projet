@@ -39,12 +39,14 @@
                 ];
                 this.nbLines   = (this.grid).length; // Nombre d'éléments dans le tableau (nombre de lignes).
                 this.nbColumns = (this.grid[0]).length; // Nombre de colonnes.
+                this.finalPosition = {x: 4, y: 9};
 
                 this._startTime     = Date.now();
                 this._lag           = 0;
-                this._fps           = 60; // Frame rate.
+                this._fps           = 30; // Frame rate.
                 this._frameDuration = 1000 / this._fps;
                 this._position      = {x: 0, y:0};
+                this._positionEnd   = {x: this.finalPosition.x, y: this.finalPosition.y};
                 this._speed         = 1; // Nous voulons que 1 cellule (de notre grille) soit parcourue en 1 seconde (doit être dépendant des FPS fixés car la fonction est appelée à chaque frame). Notre unité de vitesse est donc "le nombre de cellules de la grille parcourues/seconde".
                 this._direction     = 4.71238898; // En radian.
                 this._timer         = 1;
@@ -60,6 +62,7 @@
             }
             //Fonction move
             Move = function(durationFrame) {
+                this._direction = Math.atan2(-1 * this._positionEnd.y, this._positionEnd.x);
                 let dx = Math.cos(this._direction); // cos(0) = 1 ; cos(pi) = -1 ; cos(pi/2) = 0.
                 let dy = Math.sin(this._direction) * -1; // sin(0) = 0 ; sin(pi) = 0 ; sin(pi/2) = 1 ; -1 car canvas inverse l'axe Y.
                 /* Multiplier la direction par la vitesse */
@@ -81,7 +84,7 @@
                     /* Réduire la variable _lag par la durée d'une frame */
                     this._lag -= this._frameDuration;
                 }
-                if (this._position.y < this.nbLines-1) {
+                if (this._position.x < this.finalPosition.x || this._position.y < this.finalPosition.y  ) {
                     requestAnimationFrame(this.Update.bind(this)); // La fonction de rappel est généralement appelée 60 fois par seconde.
                 }
                 console.log(this._position, this._timer / 1000);
@@ -90,7 +93,7 @@
 
         class View {
           constructor() {
-            this._cellSize  = 250; // La taille d'une cellule en pixel.
+            this._cellSize  = 50; // La taille d'une cellule en pixel.
             this.canvas = document.getElementById('my_canvas');
             this.ctx = this.canvas.getContext('2d');
           }
@@ -122,18 +125,30 @@
              // Récupération de la surface de dessin.
             for (let i_line = 0; i_line < _nbLines; i_line++) { // Boucles for pour afficher la grille.
                 for (let i_col = 0; i_col < _nbColumns; i_col++) {
+
+                    this.ctx.drawImage(FOUR_IMAGE, 160, 199, 37, 25, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                    this.ctx.drawImage(THREE_IMAGE, 128, 68, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                    if (grid[i_line][i_col] == 1){
+                        this.ctx.drawImage(THREE_IMAGE, 0, 127, 16, 16, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                    } else if (grid[i_line][i_col] == 0) {
+                    } else if (grid[i_line][i_col] == 2) {
+                    } else if (grid[i_line][i_col] == 3) {
+                    }
+                }
+            }
+            for (let i_line = 0; i_line < _nbLines; i_line++) { // Boucles for pour afficher la grille.
+                for (let i_col = 0; i_col < _nbColumns; i_col++) {
                     if (grid[i_line][i_col] == 1) {
-                            this.ctx.drawImage(HEXTILES_IMAGE, 0, 0, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                     } else if (grid[i_line][i_col] == 0) {
                             this.ctx.drawImage(TWO_IMAGE, 156, 190, 38, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                     } else if (grid[i_line][i_col] == 2) {
-                            this.ctx.drawImage(HEXTILES_IMAGE, 64,0, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                            this.ctx.drawImage(HEXTILES_IMAGE, 98,487, 26, 20, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                     } else if (grid[i_line][i_col] == 3) {
-                            this.ctx.drawImage(HEXTILES_IMAGE, 128,0, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                            this.ctx.drawImage(HEXTILES_IMAGE, 99,646, 25, 26, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                     }  
                 }
             }
-            this.ctx.fillRect(position.x*this._cellSize, position.y*this._cellSize, 250, 250);
+            this.ctx.fillRect(position.x*this._cellSize, position.y*this._cellSize, this._cellSize, this._cellSize);
         }
           
         }
@@ -148,7 +163,7 @@
               //Fonction de binding pour nouveaux mouvements
               this.bindDisplayFourmi = this.bindDisplayFourmi.bind(this);
               this.model.bindDisplayFourmi(this.bindDisplayFourmi);     
-              this.model.Play()
+              //this.model.Play()
               this.model.Update()
             }
             bindDisplayCNF (cnf_value) {
@@ -163,9 +178,15 @@
         HEXTILES_IMAGE.src = 'foodAndColony.png';
         const TWO_IMAGE = new Image();
         TWO_IMAGE.src = 'tree.png';
+        const THREE_IMAGE = new Image();
+        THREE_IMAGE.src = 'grass.png';
+        const FOUR_IMAGE = new Image();
+        FOUR_IMAGE.src = 'shadow.png';
         Promise.all([
             new Promise( (resolve) => {HEXTILES_IMAGE.addEventListener('load', () => { resolve();}); }),
             new Promise( (resolve) => {TWO_IMAGE.addEventListener('load', () => { resolve();}); }),
+            new Promise( (resolve) => {THREE_IMAGE.addEventListener('load', () => { resolve();}); }),
+            new Promise( (resolve) => {FOUR_IMAGE.addEventListener('load', () => { resolve();}); }),
         ])
         .then(() => {   
             const app = new Controller(new Model(), new View())
