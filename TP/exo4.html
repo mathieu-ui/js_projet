@@ -15,6 +15,39 @@
         <canvas id="my_canvas"></canvas>
     </div>
     <script>
+        class Ant {
+            constructor(){
+                this.position = {x: 9, y: 9};
+                this.objectif = {x: 9, y: 9};
+                this.speed = 1;
+            }
+            move(fps, grid){
+                //console.log(this.objectif);
+                //console.log(this.position);
+                let direction = Math.atan2(this.objectif.y-this.position.y , this.objectif.x-this.position.x);
+                let dx = Math.cos(direction); // cos(0) = 1 ; cos(pi) = -1 ; cos(pi/2) = 0.
+                let dy = Math.sin(direction); // sin(0) = 0 ; sin(pi) = 0 ; sin(pi/2) = 1 ; -1 car canvas inverse l'axe Y.
+                /* Multiplier la direction par la vitesse */
+                let nextX = this.position.x + dx * this.speed / fps; // On divise par les fps car la fonction est appelée selon un fps donné (#cellGrid/seconde).
+                let nextY = this.position.y + dy * this.speed / fps;
+                this.position.x = nextX;
+                this.position.y = nextY;
+            }
+            NewObjectif(grid){
+                let moves = [];
+                let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // haut, bas, gauche, droite
+                for(let dir of directions) {
+                    let newX = Math.round(this.position.x) + dir[0];
+                    let newY = Math.round(this.position.y) + dir[1];
+                    
+                    if(newX >= 0 && newX < grid[0].length && newY >= 0 && newY < grid.length && grid[newY][newX] > 0) {
+                        moves.push({x: newX, y: newY});
+                    }
+                }
+                return moves[Math.floor(Math.random() * moves.length)];
+            
+            }
+        }
         class Model {
             constructor() {
                 this.grid = [
@@ -43,13 +76,14 @@
                 this.positionEnd   = {x: 10, y: 10};
                 this._startTime     = Date.now();
                 this._lag           = 0;
-                this._fps           = 30; // Frame rate.
-                this._frameDuration = 1000 / this._fps;
-                this._position      = {x: 8, y: 10};
-                //this._positionEnd   = {x: (this._position.x) + Math.abs(this.positionEnd.x), y: (this._position.y) + Math.abs(this.positionEnd.y)};
-                this._speed         = 1; // Nous voulons que 1 cellule (de notre grille) soit parcourue en 1 seconde (doit être dépendant des FPS fixés car la fonction est appelée à chaque frame). Notre unité de vitesse est donc "le nombre de cellules de la grille parcourues/seconde".
-                this._direction     = 4.71238898; // En radian.
+                this._fps           = 60; // Frame rate.
+                this._frameDuration = 500 / this._fps;
                 this._timer         = 1;
+                //this.ant=new Ant();
+                //crée 50 fourmis
+                for (let i = 0; i < 50; i++) {
+                    this.ants.push(new Ant());
+                }
             }
             bindDisplayCNF(callback) {
                 this.displayCNF = callback;
@@ -60,68 +94,25 @@
             bindDisplayFourmi(callback) {
                 this.DisplayFourmi = callback;
             }
-        
-            Move = function(durationFrame) {
-                this._direction = Math.atan2(-1 * this._positionEnd.y, this._positionEnd.x);
-                let dx = Math.cos(this._direction); // cos(0) = 1 ; cos(pi) = -1 ; cos(pi/2) = 0.
-                let dy = Math.sin(this._direction) * -1; // sin(0) = 0 ; sin(pi) = 0 ; sin(pi/2) = 1 ; -1 car canvas inverse l'axe Y.
-                /* Multiplier la direction par la vitesse */
-                let nextX = this._position.x + dx * this._speed / this._fps; // On divise par les fps car la fonction est appelée selon un fps donné (#cellGrid/seconde).
-                let nextY = this._position.y + dy * this._speed / this._fps;
-                
-                // Check if the next position is a valid cell (equal to 1)
-                if (this.grid[Math.floor(nextY)][Math.floor(nextX)] == 1) {
-                    this._position.x = nextX;
-                    this._position.y = nextY;
-                }
-            }
-
-
-            getValidMoves(position, grid) {
-                let moves = [];
-                let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // haut, bas, gauche, droite
-                for(let dir of directions) {
-                    let newX = this._position.x + dir[0];
-                    let newY = this._position.y + dir[1];
-                
-                    if(newX >= 0 && newX < grid[0].length && newY >= 0 && newY < grid.length && grid[newY][newX] == 1) {
-                        moves.push({x: newX, y: newY}); 
-                    }
-                }
-            
-                return moves;
-            }
-
-            Move = function() {
-                let validMoves = this.getValidMoves(this._position, this.grid);
-            
-                if(validMoves.length > 0) {
-                    let chosenMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-                    this._position = chosenMove;
-                }
-            }
 
             Update = function() {
-                /* Calcul du deltaTime */
                 let currentTime = Date.now();
-                let deltaTime   = currentTime - this._startTime; // La durée entre deux appels (entre 2 frames).
+                let deltaTime   = currentTime - this._startTime;
                 this._lag += deltaTime;
                 this._startTime = currentTime;
                 this._timer += deltaTime;
-                /* Mettre à jour la logique si la variable _lag est supérieure ou égale à la durée d'une frame */
+
                 while (this._lag >= this._frameDuration) {
-                    /* Mise à jour de la logique et de la vue */
-                    //les fourmis se déplacent que sur le case 1
-                    this.Move(this._frameDuration);
-                    this.DisplayFourmi(this._position, this.grid);
-                    /* Réduire la variable _lag par la durée d'une frame */
+                    this.ant.move(this._fps, this.grid);
+                    this.DisplayFourmi(this.ant.position, this.grid);   
                     this._lag -= this._frameDuration;
+                    if (Math.round(this.ant.position.x) == this.ant.objectif.x && Math.round(this.ant.position.y) == this.ant.objectif.y) {
+                        console.log(this.ant.NewObjectif(this.grid));
+                        this.ant.objectif = this.ant.NewObjectif(this.grid);
+                    }
+   
                 }
                 requestAnimationFrame(this.Update.bind(this));
-                // if (this._position.x < this._positionEnd.x && this._position.y < this._positionEnd.y  ) {
-                //     requestAnimationFrame(this.Update.bind(this)); // La fonction de rappel est généralement appelée 60 fois par seconde.
-                // }
-                //console.log(this._position, this._timer / 1000);
             }
         }
 
@@ -152,6 +143,7 @@
             }
           }
           DisplayFourmi = function(position, grid) {
+            //console.log(position); 
             let _nbLines   = (grid).length;
             let _nbColumns = (grid[0]).length;
             this.canvas.width  = _nbColumns * this._cellSize;
