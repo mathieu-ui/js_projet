@@ -76,12 +76,14 @@
                 this.positionEnd   = {x: 10, y: 10};
                 this._startTime     = Date.now();
                 this._lag           = 0;
-                this._fps           = 60; // Frame rate.
+                this._fps           = 300; // Frame rate.
                 this._frameDuration = 500 / this._fps;
                 this._timer         = 1;
-                //this.ant=new Ant();
-                //crée 50 fourmis
-                for (let i = 0; i < 50; i++) {
+                this.ant=new Ant();
+                // crée 50 fourmis
+                // piere-antoine.gean@mines-ales.fr
+                this.ants = [];
+                for (let i = 0; i < 10; i++) {
                     this.ants.push(new Ant());
                 }
             }
@@ -114,8 +116,29 @@
                 }
                 requestAnimationFrame(this.Update.bind(this));
             }
+            
+            Update1 = function() {
+                let currentTime = Date.now();
+                let deltaTime   = currentTime - this._startTime;
+                this._lag += deltaTime;
+                this._startTime = currentTime;
+                this._timer += deltaTime;
+                while (this._lag >= this._frameDuration) {
+                    for (let i = 0; i < this.ants.length; i++) {
+                        console.log("aa");
+                        this.ants[i].move(this._fps, this.grid);
+                        this.DisplayFourmi(this.ants, this.grid);   
+                        this._lag -= this._frameDuration;
+                        if (Math.round(this.ants[i].position.x) == this.ants[i].objectif.x && Math.round(this.ants[i].position.y) == this.ants[i].objectif.y) {
+                            console.log(this.ants[i].NewObjectif(this.grid));
+                            this.ants[i].objectif = this.ants[i].NewObjectif(this.grid);
+                        }
+                    }
+                }
+                requestAnimationFrame(this.Update1.bind(this));
+            
         }
-
+    }
         class View {
           constructor() {
             this._cellSize  = 50; // La taille d'une cellule en pixel.
@@ -142,7 +165,7 @@
                 }
             }
           }
-          DisplayFourmi = function(position, grid) {
+          DisplayFourmi = function(ants, grid) {
             //console.log(position); 
             let _nbLines   = (grid).length;
             let _nbColumns = (grid[0]).length;
@@ -174,7 +197,9 @@
                     }  
                 }
             }
-            this.ctx.drawImage(HEXTILES_IMAGE, 32*10,32*16, 32, 32,position.x*this._cellSize, position.y*this._cellSize, this._cellSize, this._cellSize);
+            for (let i = 0; i < ants.length; i++) {
+            this.ctx.drawImage(FIVE_IMAGE, 27,15, 79, 101,ants[i].position.x*this._cellSize, ants[i].position.y*this._cellSize, this._cellSize, this._cellSize);
+            }
         }
           
         }
@@ -190,7 +215,7 @@
               this.bindDisplayFourmi = this.bindDisplayFourmi.bind(this);
               this.model.bindDisplayFourmi(this.bindDisplayFourmi);     
               //this.model.Play()
-              this.model.Update()
+              this.model.Update1()
             }
             bindDisplayCNF (cnf_value) {
                 this.view.Display(cnf_value);
@@ -208,11 +233,14 @@
         THREE_IMAGE.src = 'grass.png';
         const FOUR_IMAGE = new Image();
         FOUR_IMAGE.src = 'shadow.png';
+        const FIVE_IMAGE = new Image();
+        FIVE_IMAGE.src = 'among.jpg';
         Promise.all([
             new Promise( (resolve) => {HEXTILES_IMAGE.addEventListener('load', () => { resolve();}); }),
             new Promise( (resolve) => {TWO_IMAGE.addEventListener('load', () => { resolve();}); }),
             new Promise( (resolve) => {THREE_IMAGE.addEventListener('load', () => { resolve();}); }),
             new Promise( (resolve) => {FOUR_IMAGE.addEventListener('load', () => { resolve();}); }),
+            new Promise( (resolve) => {FIVE_IMAGE.addEventListener('load', () => { resolve();}); }),
         ])
         .then(() => {   
             const app = new Controller(new Model(), new View())
