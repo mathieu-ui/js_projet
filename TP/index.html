@@ -1,20 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Un pied à l'étrier</title>
-    <style>
-        body {
-            background-color: antiquewhite;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projet</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: rgb(18, 18, 18);
+      color: rgb(255, 255, 255);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container__0 {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      text-align: center;
+      padding: 10px;
+      width: 500px;
+    }
+
+    .container__0 p {
+      padding: 20px;
+    }
+
+    .container__0 button {
+      background: rgb(3, 218, 197);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 5px 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    
+  </style>
+
 </head>
 <body>
-    <div style="display: flex; gap: 20px; align-items: flex-start;">    
-        <canvas id="my_canvas"></canvas>
-    </div>
-    <script src="script.js"></script>
-    
+  <div id="mvc" class="container__0">
+    <canvas id="my_canvas"></canvas>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>

@@ -239,15 +239,15 @@ class Controller {
 }
 
 const HEXTILES_IMAGE = new Image();
-HEXTILES_IMAGE.src = 'foodAndColony.png';
+HEXTILES_IMAGE.src = 'img/foodAndColony.png';
 const TREE = new Image();
-TREE.src = 'tree.png';
+TREE.src = 'img/tree.png';
 const GRASS = new Image();
-GRASS.src = 'grass.png';
+GRASS.src = 'img/grass.png';
 const SHADOW = new Image();
-SHADOW.src = 'shadow.png';
+SHADOW.src = 'img/shadow.png';
 const ANT = new Image();
-ANT.src = 'ant.png';
+ANT.src = 'img/ant.png';
 Promise.all([
     new Promise( (resolve) => {HEXTILES_IMAGE.addEventListener('load', () => { resolve();}); }),
     new Promise( (resolve) => {TREE.addEventListener('load', () => { resolve();}); }),
