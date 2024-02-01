@@ -6,6 +6,8 @@ class Ant {
         this.state = 0;
         this.state1 = 0;
         this.pile = [];
+        this.carriedFood = 0;
+        this.maxCarriedFood = 0.1;
     }
     move(fps){
         let direction = Math.atan2(this.position.y - (this.objectif.y + 0.5), (this.objectif.x + 0.5)-this.position.x);
@@ -19,12 +21,13 @@ class Ant {
             if (this.state1 == 0) {
                 console.log("pile");
                 console.log(this.pile);
-                
+                this.carriedFood = this.carriedFood;
                 this.state1 = 1;
                 this.pile = this.optimizeMoves(this.pile, grid);
                 console.log(this.pile);
             }
             if (this.pile.length == 0) {
+                this.carriedFood = 0;
                 this.state = 0;
                 this.state1 = 0;
                 this.speed = 3;
@@ -99,6 +102,53 @@ class Ant {
         }
 }
 
+class Cell {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    GetType() { return this.constructor.name; }
+}
+
+class Start extends Cell {
+    constructor(x, y) {
+        super(x, y);
+    }
+}
+
+class Obstacle extends Cell {
+    constructor(x, y) {
+        super(x, y);
+    }
+}
+
+class Objective extends Cell {
+    constructor(x, y, qty = 1.1) {
+        super(x, y);
+        this._qty = qty;
+    }
+
+    GetQty(grid, antqty) { 
+        this._qty = this._qty - antqty;
+        if (this._qty <= 0) {
+            grid[this.y][this.x] = 1;
+        }
+        return this._qty; 
+    }
+    SetQty(newValue) { this._qty = newValue; }
+}
+
+class Free extends Cell {
+    constructor(x, y, qty = 0.0) {
+        super(x, y);
+        this._qty = qty; // Quantity of pheromones
+    }
+
+    GetQty() { return this._qty;  }
+    SetQty(newValue) { this._qty = newValue; }
+}
+
 class Model {
     constructor() {
         this.grid = [
@@ -135,6 +185,30 @@ class Model {
         [0, 1, 2, 1, 0],
         [0, 0, 0, 0, 0]
         ];
+
+        this.objGrid = [];
+        for (let i = 0; i < this.grid.length; i++) {
+            this.objGrid[i] = [];
+            for (let j = 0; j < this.grid[0].length; j++) {
+                switch (this.grid[i][j]) {
+                    case 1:
+                        this.objGrid[i][j] = new Free(j, i);
+                        break;
+                    case 3:
+                        this.objGrid[i][j] = new Start(j, i);
+                        break;
+                    case 0:
+                        this.objGrid[i][j] = new Obstacle(j, i);
+                        break;
+                    case 2:
+                        this.objGrid[i][j] = new Objective(j, i);
+                        break;
+                    default:
+                        this.objGrid[i][j] = new Free(j, i);
+                        break;
+                }
+            }
+        }
 
         this.toggleButton = document.getElementById('btn');
         this.game = false;
@@ -205,6 +279,7 @@ class Model {
                     if(this.game){
                     ant.move(this._fps);
                         if (this.grid[Math.floor(ant.position.y)][Math.floor(ant.position.x)] == 2) {
+                            console.log(this.objGrid[Math.floor(ant.position.y)][Math.floor(ant.position.x)].GetQty(this.grid, ant.maxCarriedFood));
                             ant.speed = 1;
                             ant.state = 1;
                             ant.objectif = ant.NewObjectif(this.grid);
@@ -244,6 +319,7 @@ class View {
                         this.ctx.drawImage(SHADOW, 47, 96, 98, 50, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                         this.ctx.drawImage(TREE, 23,13,117,135, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                 } else if (grid[i_line][i_col] == 2) {
+                        this.ctx.drawImage(GRASS, 192, 143, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                         this.ctx.drawImage(HEXTILES_IMAGE, 32*3, 32*15, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                 } else if (grid[i_line][i_col] == 3) {
                         this.ctx.drawImage(HEXTILES_IMAGE, 32*3,32*20, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
