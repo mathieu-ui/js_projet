@@ -8,11 +8,12 @@ class Ant {
         this.pile = [];
         this.carriedFood = 0;
         this.maxCarriedFood = 0.1;
+        this.direction;
     }
     move(fps){
-        let direction = Math.atan2(this.position.y - (this.objectif.y + 0.5), (this.objectif.x + 0.5)-this.position.x);
-        let dx = Math.cos(direction); // cos(0) = 1 ; cos(pi) = -1 ; cos(pi/2) = 0.
-        let dy = Math.sin(direction) * -1; // sin(0) = 0 ; sin(pi) = 0 ; sin(pi/2) = 1 ; -1 car canvas inverse l'axe Y.
+        this.direction = Math.atan2(this.position.y - (this.objectif.y + 0.5), (this.objectif.x + 0.5)-this.position.x);
+        let dx = Math.cos(this.direction); // cos(0) = 1 ; cos(pi) = -1 ; cos(pi/2) = 0.
+        let dy = Math.sin(this.direction) * -1; // sin(0) = 0 ; sin(pi) = 0 ; sin(pi/2) = 1 ; -1 car canvas inverse l'axe Y.
         this.position.x += dx * this.speed / fps; 
         this.position.y += dy * this.speed / fps;
     }
@@ -291,7 +292,7 @@ class Model {
                             ant.objectif = ant.NewObjectif(this.grid);
                         }
                     }
-                    this.DisplayFourmi(ant.position);
+                    this.DisplayFourmi(ant.position, ant.direction);
                 }
             this._lag -= this._frameDuration;           
         }
@@ -327,8 +328,12 @@ class View {
             }
         }
     }
-    DisplayFourmi = function(position) {
-        this.ctx.drawImage(ANT, 0,0, 64, 64,position.x*this._cellSize+0.5,position.y*this._cellSize+0.5, this._cellSize/2, this._cellSize/2);
+    DisplayFourmi = function(position, direction) {
+        this.ctx.save();
+        this.ctx.translate(position.x * this._cellSize + 0.5, position.y * this._cellSize + 0.5);
+        this.ctx.rotate(-direction); 
+        this.ctx.drawImage(ANT, 0, 0, 64, 64, -this._cellSize / 4, -this._cellSize / 4, this._cellSize / 2, this._cellSize / 2);
+        this.ctx.restore();
     }
     timerDisplay(seconds, milliseconds) {
         let displaySeconds = seconds < 10 ? '0' + seconds : seconds;
@@ -355,8 +360,8 @@ class Controller {
     bindDisplay (grid) {
         this.view.Display(grid);
     }
-    bindDisplayFourmi (position) {
-        this.view.DisplayFourmi(position);
+    bindDisplayFourmi (position, direction) {
+        this.view.DisplayFourmi(position, direction);
     }
     bindtimerDisplay (seconds, milliseconds) {
         this.view.timerDisplay(seconds, milliseconds);
