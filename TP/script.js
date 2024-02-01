@@ -237,22 +237,22 @@ class View {
         this.canvas.height = _nbLines * this._cellSize;
         for (let i_line = 0; i_line < _nbLines; i_line++) {
             for (let i_col = 0; i_col < _nbColumns; i_col++) {
-                this.ctx.drawImage(SHADOW, 160, 199, 37, 25, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                 this.ctx.drawImage(GRASS, 128, 68, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                 if (grid[i_line][i_col] == 1) {
-                    this.ctx.drawImage(GRASS, 0, 127, 16, 16, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                    this.ctx.drawImage(GRASS, 192, 143, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                 } else if (grid[i_line][i_col] == 0) {
-                        this.ctx.drawImage(TREE, 156, 190, 38, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                        this.ctx.drawImage(SHADOW, 47, 96, 98, 50, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                        this.ctx.drawImage(TREE, 23,13,117,135, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                 } else if (grid[i_line][i_col] == 2) {
-                        this.ctx.drawImage(HEXTILES_IMAGE, 98,487, 26, 20, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                        this.ctx.drawImage(HEXTILES_IMAGE, 32*3, 32*15, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                 } else if (grid[i_line][i_col] == 3) {
-                        this.ctx.drawImage(HEXTILES_IMAGE, 99,646, 25, 26, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
+                        this.ctx.drawImage(HEXTILES_IMAGE, 32*3,32*20, 32, 32, i_col * this._cellSize, i_line * this._cellSize, this._cellSize, this._cellSize);
                 }  
             }
         }
     }
     DisplayFourmi = function(position) {
-        this.ctx.drawImage(ANT, 0,0, 64, 64,position.x*this._cellSize+0.5,position.y*this._cellSize+0.5, this._cellSize/1.5, this._cellSize/1.5);
+        this.ctx.drawImage(ANT, 0,0, 64, 64,position.x*this._cellSize+0.5,position.y*this._cellSize+0.5, this._cellSize/2, this._cellSize/2);
     }
     timerDisplay(seconds, milliseconds) {
         let displaySeconds = seconds < 10 ? '0' + seconds : seconds;
