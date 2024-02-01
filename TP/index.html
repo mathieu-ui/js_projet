@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./img/ant.png">
   <title>Projet</title>
 
   <style>
@@ -14,7 +15,7 @@
     }
 
     body {
-      background: rgb(18, 18, 18);
+      background: rgb(151, 155, 47);
       color: rgb(255, 255, 255);
       display: flex;
       align-items: center;
@@ -23,34 +24,47 @@
     }
 
     .container__0 {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 5px;
+      border-radius: 10px;
       text-align: center;
       padding: 10px;
-      width: 500px;
     }
 
-    .container__0 p {
-      padding: 20px;
+    .my_canvas {
+      border-radius: 10px;
+      background: rgb(255, 255, 255);
+      border: 5px solid rgb(0, 0, 0);
     }
 
-    .container__0 button {
-      background: rgb(3, 218, 197);
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      padding: 5px 10px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+    #btn {
+      border-radius: 10px;
+      background: rgb(255, 185, 49);
+      border: 5px solid rgb(0, 0, 0);
+      padding: 10px;
+      margin: 10px;
+      font-size: 20px;
     }
-    
+
+    #timer {
+      font-size: 40px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+      
   </style>
 
 </head>
 <body>
+  <div>
+    <p id="timer">00:00</p>
+    <button id="btn">Start</button>
+    <button id="btn">Pheromon</button>
+  </div>
   <div id="mvc" class="container__0">
-    <canvas id="my_canvas"></canvas>
+    <canvas id="my_canvas" class="my_canvas"></canvas>
   </div>
   <script src="script.js"></script>
+
+    
+  </script>
 </body>
 </html>

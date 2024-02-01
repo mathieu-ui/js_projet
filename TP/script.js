@@ -2,7 +2,7 @@ class Ant {
     constructor(){
         this.position = {x: 9, y: 9};
         this.objectif = {x: 9, y: 9};
-        this.speed = 2;
+        this.speed = 3;
         this.state = 0;
         this.state1 = 0;
         this.pile = [];
@@ -27,7 +27,7 @@ class Ant {
             if (this.pile.length == 0) {
                 this.state = 0;
                 this.state1 = 0;
-                this.speed = 2;
+                this.speed = 3;
                 this.pile.push({x: 9, y: 9});
                 return {x: 9, y: 9};
             } else {
@@ -103,9 +103,9 @@ class Model {
     constructor() {
         this.grid = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1 ,1, 1, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 2, 0],
-            [0, 2, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1 ,1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 2, 0],
+            [0, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0],
             [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0],
             [0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0],
             [0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0],
@@ -117,24 +117,31 @@ class Model {
             [0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0],
             [0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0],
             [0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0],
-            [0, 1, 0, 1, 0 ,1, 0, 0, 1, 0, 1, 0, 1, 1, 2, 1, 1, 0],
+            [0, 1, 0, 1, 0 ,1, 0, 0, 1, 0, 1, 0, 1, 1, 2, 0, 1, 0],
             [0, 1, 1, 1, 0, 2, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ];
-        // this.grid = [
-        // [0, 0, 0, 0, 0],
-        // [0, 3, 1, 1, 0],
-        // [0, 0, 0, 1, 0],
-        // [0, 1, 1, 2, 0],
-        // [0, 1, 0, 0, 0],
-        // [0, 1, 2, 1, 0],
-        // [0, 0, 0, 1, 0],
-        // [0, 1, 1, 1, 0],
-        // [0, 1, 0, 0, 0],
-        // [0, 1, 1, 1, 0],
-        // [0, 1, 2, 1, 0],
-        // [0, 0, 0, 0, 0]
-        // ];
+        this.grid1 = [
+        [0, 0, 0, 0, 0],
+        [0, 3, 1, 1, 0],
+        [0, 0, 0, 1, 0],
+        [0, 1, 1, 2, 0],
+        [0, 1, 0, 0, 0],
+        [0, 1, 2, 1, 0],
+        [0, 0, 0, 1, 0],
+        [0, 1, 1, 1, 0],
+        [0, 1, 0, 0, 0],
+        [0, 1, 1, 1, 0],
+        [0, 1, 2, 1, 0],
+        [0, 0, 0, 0, 0]
+        ];
+
+        this.toggleButton = document.getElementById('btn');
+        this.game = false;
+        this.isTimerRunning = false;
+        this.interval;
+        this.seconds = 0;
+        this.milliseconds = 0;
 
         this._startTime     = Date.now();
         this._lag           = 0;
@@ -154,9 +161,39 @@ class Model {
     bindDisplay(callback) {
         this.Display = callback;
     }
+    bindtimerDisplay(callback) {
+        this.timerDisplay = callback;
+    }
+    timer() {
+        if (!this.isTimerRunning) {
+            this.startT();
+            this.toggleButton.textContent = 'Stop';
+            this.startG();
+        } else {
+            this.stopT();
+            this.toggleButton.textContent = 'Start';
+        }
+    }
+    startT() {
+        this.isTimerRunning = true;
+        this.interval = setInterval(() => {
+            this.milliseconds += 10;
+            if (this.milliseconds >= 1000) {
+                this.milliseconds = 0;
+                this.seconds += 1;
+            }
+            this.timerDisplay(this.seconds, this.milliseconds);
+        }, 1);
+    }
+    stopT() {
+        this.isTimerRunning = false;
+        this.game = false;
+        clearInterval(this.interval);
+    }
+    startG() {this.game = true;}
     
     Update = function() {
-        //console.log(this.ants[0].position);
+        this.toggleButton.addEventListener('click', this.timer.bind(this));
         let currentTime = Date.now();
         let deltaTime   = currentTime - this._startTime;
         this._lag += deltaTime;
@@ -164,24 +201,23 @@ class Model {
 
         while (this._lag >= this._frameDuration) {
             this.Display(this.grid);
-            for (let ant of this.ants) {
-                // console.log(ant.state);
-                ant.move(this._fps);
-                if (this.grid[Math.floor(ant.position.y)][Math.floor(ant.position.x)] == 2) {
-                    console.log("trouve");
-                    ant.speed = 1;
-                    ant.state = 1;
-                    ant.objectif = ant.NewObjectif(this.grid);
-                } else 
-                if (Math.floor(ant.position.x) == ant.objectif.x && Math.floor(ant.position.y) == ant.objectif.y && ant.state == 0){
-                    ant.objectif = ant.NewObjectif(this.grid);
-                } else 
-                if (Math.floor(ant.position.x) == ant.objectif.x && Math.floor(ant.position.y) == ant.objectif.y && ant.state == 1){
-                    ant.objectif = ant.NewObjectif(this.grid);
+                for (let ant of this.ants) {
+                    if(this.game){
+                    ant.move(this._fps);
+                        if (this.grid[Math.floor(ant.position.y)][Math.floor(ant.position.x)] == 2) {
+                            ant.speed = 1;
+                            ant.state = 1;
+                            ant.objectif = ant.NewObjectif(this.grid);
+                        } else 
+                        if (Math.floor(ant.position.x) == ant.objectif.x && Math.floor(ant.position.y) == ant.objectif.y && ant.state == 0){
+                            ant.objectif = ant.NewObjectif(this.grid);
+                        } else 
+                        if (Math.floor(ant.position.x) == ant.objectif.x && Math.floor(ant.position.y) == ant.objectif.y && ant.state == 1){
+                            ant.objectif = ant.NewObjectif(this.grid);
+                        }
+                    }
+                    this.DisplayFourmi(ant.position);
                 }
-                
-                this.DisplayFourmi(ant.position);
-            }
             this._lag -= this._frameDuration;           
         }
         requestAnimationFrame(this.Update.bind(this));
@@ -192,6 +228,7 @@ class View {
         this._cellSize  = 50; // La taille d'une cellule en pixel.
         this.canvas = document.getElementById('my_canvas');
         this.ctx = this.canvas.getContext('2d');
+        this.timerElement = document.getElementById('timer');
     }
     Display = function(grid) {
         let _nbLines   = (grid).length;
@@ -217,6 +254,11 @@ class View {
     DisplayFourmi = function(position) {
         this.ctx.drawImage(ANT, 0,0, 64, 64,position.x*this._cellSize+0.5,position.y*this._cellSize+0.5, this._cellSize/1.5, this._cellSize/1.5);
     }
+    timerDisplay(seconds, milliseconds) {
+        let displaySeconds = seconds < 10 ? '0' + seconds : seconds;
+        let displayMilliseconds = milliseconds < 10 ? '0' + milliseconds : milliseconds;
+        this.timerElement.textContent = `${displaySeconds}:${displayMilliseconds}`;
+    }
   
 }
 
@@ -226,15 +268,22 @@ class Controller {
       this.view = view
       this.bindDisplay = this.bindDisplay.bind(this);
       this.model.bindDisplay(this.bindDisplay); 
+
       this.bindDisplayFourmi = this.bindDisplayFourmi.bind(this);
-      this.model.bindDisplayFourmi(this.bindDisplayFourmi);      
+      this.model.bindDisplayFourmi(this.bindDisplayFourmi); 
+
+      this.bindtimerDisplay = this.bindtimerDisplay.bind(this);
+      this.model.bindtimerDisplay(this.bindtimerDisplay);      
       this.model.Update()
-    }
+    }  
     bindDisplay (grid) {
         this.view.Display(grid);
     }
     bindDisplayFourmi (position) {
         this.view.DisplayFourmi(position);
+    }
+    bindtimerDisplay (seconds, milliseconds) {
+        this.view.timerDisplay(seconds, milliseconds);
     }
 }
 
