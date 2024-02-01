@@ -20,12 +20,12 @@ class Ant {
     NewObjectif(grid){
         if (this.state == 1) {
             if (this.state1 == 0) {
-                console.log("pile");
-                console.log(this.pile);
+                //console.log("pile");
+                //console.log(this.pile);
                 this.carriedFood = this.carriedFood;
                 this.state1 = 1;
                 this.pile = this.optimizeMoves(this.pile, grid);
-                console.log(this.pile);
+                //console.log(this.pile);
             }
             if (this.pile.length == 0) {
                 this.carriedFood = 0;
@@ -35,7 +35,6 @@ class Ant {
                 this.pile.push({x: 9, y: 9});
                 return {x: 9, y: 9};
             } else {
-                //console.log(this.pile[this.pile.length - 1]);
                 return this.pile.pop();
             }
         } else {
@@ -225,7 +224,7 @@ class Model {
 
         // piere-antoine.gean@mines-ales.fr
         this.ants = [];
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 50; i++) {
             this.ants.push(new Ant());
         }
     }
